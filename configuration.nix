@@ -1,6 +1,5 @@
 { pkgs, ... }: {
 
-
   programs.java = {
     enable = true;
     package = pkgs.jdk21; # Set default JDK
@@ -36,10 +35,5 @@
 
   # For proprietary apps like IntelliJ Ultimate
   nixpkgs.config.allowUnfree = true;
-
-  # allow intellij to remember passwords
-  codchi.keyring.enable = true;
-
-
 
 }
