@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, config, ... }: {
 
 
   programs.java = {
@@ -40,6 +40,35 @@
   # allow intellij to remember passwords
   codchi.keyring.enable = true;
 
+  services.postgresql = {
+    enable = true;
+    ensureDatabases = [ "postgres" ];
+    enableTCPIP = true;
+  };
+  codchi.secrets.env = {
+    POSTGRES_PASSWORD.description = "Password for the local postgres instance";
+  };
 
+  systemd.services.codchi-postgres-init = {
+    description = "Initialize PostgreSQL with custom password";
+    after = [ "postgresql.service" ];
+    requires = [ "postgresql.service" ];
+    wantedBy = [ "multi-user.target" ];
 
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      User = "postgres";
+      Group = "postgres";
+    };
+    path = [ config.services.postgresql.package ];
+    script = ''
+      source /etc/codchi-env
+      until pg_isready; do 
+        echo "Waiting for PostgreSQL to be ready..."
+        sleep 1
+      done
+      psql -d postgres -c "ALTER USER postgres WITH PASSWORD '"$CODCHI_POSTGRES_PASSWORD"';"
+    '';
+  };
 }
