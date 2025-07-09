@@ -14,5 +14,10 @@
         # inputs.arion.nixosModules.arion
       ];
     };
+    nixosModules.eclipse = { pkgs, ... }: {
+      environment.systemPackages = [
+        pkgs.eclipses.eclipse-jee
+      ];
+    };
   };
 }
